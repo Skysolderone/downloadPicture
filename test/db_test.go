@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/hints"
 )
 
 type StoreId struct {
@@ -103,4 +104,30 @@ func TestDbSelect3(t *testing.T) {
 	query := "/CartvuMedia/FTP/Cartvu/Images/002235/I-02-20221120125530-0.jpg"
 	db3.Table("z_images_002235").Select("ImagePath,Note,Type").Where("ImagePath=?", query).Find(&remoteImage)
 	fmt.Println(remoteImage)
+}
+
+type RemoteImage3 struct {
+	Type string
+}
+
+func TestConnectDb(t *testing.T) {
+	dsn := "readonly:ReadOnly)!@9@tcp(103.44.243.111:13306)/cartvumedia?charset=utf8mb4&parseTime=True&loc=Local"
+	Db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            true,
+		Logger:                 logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		fmt.Println("db1 open error: ", err)
+	}
+	remotemodel := RemoteImage3{}
+	Db.Table("z_images_002158").Select("ImagePath,Type,Note").Where("ImagePath=? and Note=?",
+		"/CartvuMedia/FTP/Cartvu/Images/002158/I-14-20221123064703-0.jpg",
+		"audited").
+		Clauses(hints.UseIndex("ImagePath")).Find(&remotemodel)
+	//Db.Table("z_images_002158").Where("Id=?", 2977924).Take(&remotemodel)
+	if remotemodel.Type == "" {
+		t.Log("type is empty")
+	}
+	fmt.Println("remotemodel:", remotemodel)
 }

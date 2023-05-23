@@ -1,14 +1,15 @@
 package test
 
 import (
+	"DownLoadPicture/model"
 	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"reflect"
+	"strconv"
 	"testing"
 	"unsafe"
-	"v1/model"
 )
 
 type PictureInfo1 struct {
@@ -25,7 +26,7 @@ type PictureInfo1 struct {
 }
 
 func TestGetHex(t *testing.T) {
-	file, err := os.Open("I-01-20220601034407-0.jpg")
+	file, err := os.Open("I-01-20220601034054-0.jpg")
 	if err != nil {
 		t.Log(err)
 	}
@@ -46,6 +47,8 @@ func TestGetHex(t *testing.T) {
 	}
 	if buf[0] == byte(255) && buf[1] == byte(217) {
 		chunks = append(chunks, buf[2:]...)
+	} else if buf[1] == byte(255) && buf[2] == byte(217) {
+		chunks = append(chunks, buf[3:]...)
 	}
 
 	//fmt.Println(chunks)
@@ -61,18 +64,23 @@ func TestGetHex(t *testing.T) {
 		chunks2 = append(chunks2, chunks[i])
 	}
 	pictureInfo := PictureInfo1{}
-	var cmd_info *model.PictureInfo
-	cmd_info = (*model.PictureInfo)(byte_slice_to_struct(chunks2))
-
+	var cmd_info *model.GetPictureInfo
+	cmd_info = (*model.GetPictureInfo)(byte_slice_to_struct(chunks2))
+	//t.Log(cmd_info)
 	pictureInfo.FileName = fmt.Sprintf("%s", cmd_info.FileName)
 	pictureInfo.AlertTime = fmt.Sprintf("%s", cmd_info.AlertTime)
 	pictureInfo.Lane = cmd_info.Lane
-
+	testtime := fmt.Sprintf("%s", cmd_info.AlertTime)
+	time, _ := strconv.Atoi(testtime)
+	pictureInfo.Store = "test"
+	//time, _ := strconv.ParseInt(testtime, 10, 64)
+	t.Log(time)
 	pictureInfo.IsAi = cmd_info.IsAi
 
-	pictureInfo.Store = fmt.Sprintf("%s", cmd_info.Store)
+	//pictureInfo.Store = fmt.Sprintf("%s", cmd_info.Store)
 
 	pictureInfo.Confirmed = cmd_info.Confirmed
+
 	t.Log(pictureInfo)
 
 }

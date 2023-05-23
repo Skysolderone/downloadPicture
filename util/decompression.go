@@ -1,19 +1,18 @@
 package util
 
 import (
+	"DownLoadPicture/model"
 	"archive/tar"
 	"compress/gzip"
-	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
-	"v1/model"
 )
 
 func Decompression(tarName string) (string, error) {
 	//filePath := "002235-202206.tgz"
+	//log.Println("starting decompression")
 	s := strings.Index(tarName, "-")
 	localFilePath := "../image/" + tarName[:s] + tarName[6:]
 	downloadPath := "./downloadFile/" + tarName[:s] + tarName[6:]
@@ -21,12 +20,14 @@ func Decompression(tarName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	removePath := strings.Trim(downloadPath, tarName[s-6:])
+	defer removeDownloadFile(removePath)
 	defer srcFile.Close()
+
 	gr, err := gzip.NewReader(srcFile)
 	if err != nil {
 		return "", err
 	}
-	defer gr.Close()
 	tr := tar.NewReader(gr)
 	cout := 0
 	for {
@@ -42,27 +43,35 @@ func Decompression(tarName string) (string, error) {
 		filename := localFilePath + hdr.Name
 		err = os.MkdirAll(string([]rune(filename)[0:strings.LastIndex(filename, "/")]), 0755)
 		if err != nil {
-			model.FatalDecompress = append(model.FatalDecompress, filename)
+			model.AddData(model.FatalDecompress, filename)
 			return "", err
 		}
 		file, err := os.Create(filename)
 		if err != nil {
-			model.FatalDecompress = append(model.FatalDecompress, filename)
+			model.AddData(model.FatalDecompress, filename)
 			return "", err
 		}
 		_, err = io.Copy(file, tr)
 		if err != nil {
-			model.FatalDecompress = append(model.FatalDecompress, filename)
+			model.AddData(model.FatalDecompress, filename)
 			return "", err
 		}
 	}
 	log.Println("decompressing image:", cout)
 	//path := downloadPath[1:]
-	err = os.RemoveAll(downloadPath)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("remove file failed %s", downloadPath))
-	}
-	log.Println("remove downloaded file:", tarName)
-	model.SuccessDecompress = append(model.SuccessDecompress, downloadPath)
+	model.AddData(model.SuccessDecompress, downloadPath)
+
 	return localFilePath, nil
+}
+func removeDownloadFile(file string) {
+	localPath := "." + file[:len(file)-1] + "/"
+	err := os.RemoveAll(localPath)
+	if err != nil {
+		log.Println("remove file failed err:", err)
+		model.AddData(model.FatalRemove, file)
+	} else {
+		file = strings.Trim(file, "")
+		model.AddData(model.SuccessDecompress, file)
+		log.Println("remove downloaded file:", file)
+	}
 }

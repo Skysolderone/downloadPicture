@@ -6,5 +6,8 @@ type HexImage struct {
 type RemoteImage struct {
 	ImagePath string
 	Type      int
-	Node      string
+}
+
+type SelectType struct {
+	Type string
 }

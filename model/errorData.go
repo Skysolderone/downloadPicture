@@ -13,3 +13,7 @@ var FatalPath []string
 var FatalDecompress []string
 var FatalGetHex []string
 var FatalRemove []string
+
+func AddData(dataArray []string, data string) {
+	dataArray = append(dataArray, data)
+}
