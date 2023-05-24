@@ -21,8 +21,11 @@ type LocalImage struct {
 	Manual_check_type   int8      `gorm:"manual_check_type"`
 }
 
+var FinalDownloadSig = make(chan bool, 1)
 var InsertArray = make([]LocalImage, 0)
 var UrlArray = make([]string, 0)
+var InsertChan = make(chan []LocalImage, 100)
+var InsertDataChanSig = make(chan string, 10)
 
 func GetInsertArray() []LocalImage {
 	return InsertArray
@@ -40,5 +43,16 @@ func GetUrlArray() []string {
 	return UrlArray
 }
 func ForwardArray() {
-	UrlArray = UrlArray[1 : len(UrlArray)-1]
+	if len(UrlArray) != 1 {
+		UrlArray = UrlArray[1:]
+		FinalDownloadSig <- false
+	} else {
+		FinalDownloadSig <- true
+	}
+
+}
+func CheckChan() {
+	if len(InsertChan) != 0 {
+		InsertDataChanSig <- "StartInsert"
+	}
 }

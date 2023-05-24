@@ -107,9 +107,38 @@ func TestDbSelect3(t *testing.T) {
 }
 
 type RemoteImage3 struct {
-	Type string
+	ImagePath string
+	Type      string
 }
 
+func TestGetStoreInfo(t *testing.T) {
+	dsn := "readonly:ReadOnly)!@9@tcp(103.44.243.111:13306)/cartvumedia?charset=utf8mb3&parseTime=True&loc=Local"
+	db3, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println("db1 open error: ", err)
+	}
+	var testMap = make(map[string][]RemoteImage3)
+	storeId := []StoreId{}
+	remoteImage := []RemoteImage3{}
+	db3.Table("storeinfo").Select("Id").Find(&storeId)
+	for i := range storeId {
+
+		table := "z_images_" + storeId[i].Id
+
+		db3.Table(table).Select("ImagePath,Type").
+			Where("Note=?", "audited").
+			Find(&remoteImage)
+		testMap[table] = remoteImage
+	}
+	sqlDB, _ := db3.DB()
+	// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量。
+	sqlDB.SetMaxIdleConns(10)
+	// SetMaxOpenConns 设置打开数据库连接的最大数量。
+	sqlDB.SetMaxOpenConns(100)
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	sqlDB.SetConnMaxLifetime(24 * time.Hour)
+	fmt.Println(testMap)
+}
 func TestConnectDb(t *testing.T) {
 	dsn := "readonly:ReadOnly)!@9@tcp(103.44.243.111:13306)/cartvumedia?charset=utf8mb4&parseTime=True&loc=Local"
 	Db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -130,4 +159,21 @@ func TestConnectDb(t *testing.T) {
 		t.Log("type is empty")
 	}
 	fmt.Println("remotemodel:", remotemodel)
+}
+
+var s = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+func tp() {
+	if len(s) != 1 {
+		s = s[1:]
+	}
+
+}
+func TestURL(t *testing.T) {
+
+	for _ = range s {
+		test := s[0]
+		tp()
+		fmt.Println(test)
+	}
 }

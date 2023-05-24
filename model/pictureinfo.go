@@ -1,7 +1,7 @@
 package model
 
 type GetPictureInfo struct {
-	FileName  [25]byte /*图片文件名 ASCII码 格式:I-收银台号-yyyyMMddhhmmss.jpg*/
+	FileName  [26]byte /*图片文件名 ASCII码 格式:I-收银台号-yyyyMMddhhmmss.jpg*/
 	AlertTime [15]byte /*图片的报警时间 ASCII码 格式:yyyyMMddhhmmss*/
 	Lane      byte     /*收银台号*/
 	Cashier   [21]byte /*收银员编号*/

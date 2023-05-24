@@ -29,15 +29,12 @@ func InitDb1() {
 		log.Println("db1 open error: ", err)
 	}
 	sqlDB, _ := Db.DB()
-
-	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量。
 	sqlDB.SetMaxIdleConns(10)
-
-	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	// SetMaxOpenConns 设置打开数据库连接的最大数量。
 	sqlDB.SetMaxOpenConns(100)
-
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(24 * time.Hour)
 }
 
 func InitDb2() {
@@ -51,13 +48,9 @@ func InitDb2() {
 		log.Println("db2 open error:")
 	}
 	sqlDB, _ := Db2.DB()
-
-	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 	sqlDB.SetMaxIdleConns(10)
-
-	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	// SetMaxOpenConns 设置打开数据库连接的最大数量。
 	sqlDB.SetMaxOpenConns(100)
-
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(24 * time.Hour)
 }

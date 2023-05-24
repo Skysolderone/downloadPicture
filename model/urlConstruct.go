@@ -5,19 +5,29 @@ import (
 	"os"
 )
 
+var MapData = make(map[string][]RemoteImage)
+
 func InitUrl() []string {
 	result := make([]string, 0)
 	storeId := []StoreId{}
+	remoteImage := []RemoteImage{}
 	Db.Table("storeinfo").Select("Id").Find(&storeId)
+	for i := range storeId {
+		table := "z_images_" + storeId[i].Id
+		Db.Table(table).Select("ImagePath,Type").
+			Where("Note=?", "audited").
+			Find(&remoteImage)
+		MapData[table] = remoteImage
+	}
 	ip := "http://images.checkpointcn.com"
 	remoUrl := make([]string, 0)
 	//remoUrl[1] = "/202201-202205/202201-202205.tgz"
 	remoUrl = append(remoUrl, "202206")
 	remoUrl = append(remoUrl, "202207")
 	remoUrl = append(remoUrl, "202208")
-	//remoUrl = append(remoUrl, "202209")
-	//remoUrl = append(remoUrl, "202210")
-	//remoUrl = append(remoUrl, "202211")
+	remoUrl = append(remoUrl, "202209")
+	remoUrl = append(remoUrl, "202210")
+	remoUrl = append(remoUrl, "202211")
 	downloadPath := ""
 	//start
 	for i := range remoUrl {
@@ -36,4 +46,7 @@ func Create(localfilepath string) {
 	if err != nil && !os.IsExist(err) {
 		log.Println("mkdir error:", err)
 	}
+}
+func GetMAP() map[string][]RemoteImage {
+	return MapData
 }

@@ -11,10 +11,8 @@ import (
 )
 
 func Decompression(tarName string) (string, error) {
-	//filePath := "002235-202206.tgz"
-	//log.Println("starting decompression")
 	s := strings.Index(tarName, "-")
-	localFilePath := "../image/" + tarName[:s] + tarName[6:]
+	localFilePath := "./image/" + tarName[:s] + tarName[6:]
 	downloadPath := "./downloadFile/" + tarName[:s] + tarName[6:]
 	srcFile, err := os.Open(downloadPath)
 	if err != nil {
@@ -58,7 +56,6 @@ func Decompression(tarName string) (string, error) {
 		}
 	}
 	log.Println("decompressing image:", cout)
-	//path := downloadPath[1:]
 	model.AddData(model.SuccessDecompress, downloadPath)
 
 	return localFilePath, nil

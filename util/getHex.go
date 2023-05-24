@@ -13,9 +13,7 @@ import (
 	"unsafe"
 )
 
-func GetHex(filepath string, storeId string) (model.PictureInfo, error) {
-	//hexImage := model.HexImage{}
-	//file, err := os.Open("../image/I-01-20220601034407-0.jpg")
+func GetHexData(filepath string, storeId string) (model.PictureInfo, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		log.Println(err)
@@ -58,11 +56,6 @@ func GetHex(filepath string, storeId string) (model.PictureInfo, error) {
 	pictureInfo.IsAi = cmd_info.IsAi
 
 	pictureInfo.Confirmed = cmd_info.Confirmed
-	//hex_data := make([]byte, len(chunks), cap(chunks))
-	//result := hex.EncodeToString(chunks2)
-	//hex_data, _ = hex.DecodeString(result)
-	////把数据写进结构体 alarmtime imagename
-	//hexImage.ImageName = string(hex_data[:25])
 
 	model.SuccessGetHex = append(model.SuccessGetHex, filepath)
 	return pictureInfo, nil
@@ -74,7 +67,7 @@ func byte_slice_to_struct(data []byte) unsafe.Pointer {
 func removeFile(filepath string) {
 	path := strings.Trim(filepath, ".")
 
-	err := os.Remove(".." + path)
+	err := os.Remove("." + path)
 	if err != nil {
 		log.Println("remove image file fail :", err)
 		model.FatalRemove = append(model.FatalRemove, path)
